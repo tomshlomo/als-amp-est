@@ -11,7 +11,6 @@ set(0, 'defaultLegendInterpreter','latex');
 %% path
 restoredefaultpath();
 addpath("spherical processing");
-addpath("utils");
 
 end
 

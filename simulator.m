@@ -19,7 +19,7 @@ if ~isempty(cache)
     return 
 end
 rng(opts.seed);
-roomDim = [7,5,3];
+roomDim = [7, 5, 3];
 
 if opts.angle_dependence
     R = 0.95;
@@ -30,7 +30,8 @@ end
 rng(2)
 switch opts.source_type
     case "speech"
-        [s, fs] = tsp.glued(opts.T, 1);
+        [s, fs] = audioread("female_speech.wav");
+        s = s(1:round(opts.T*fs));
     case "noise"
         fs = 48e3;
         s = randn(round(fs*opts.T),1);
@@ -48,13 +49,8 @@ sceneInfo.SNR = RoomParams.dnr_drr_to_snr(opts.dnr, roomParams.DRR);
 fprintf("T60: %.2f sec\n", roomParams.T60);
 fprintf("DRR: %.1f dB\n", roomParams.DRR);
 fprintf("DNR: %.1f dB\n", opts.dnr);
-
-%% calc some sceneInfos
 sceneInfo.dist = norm(sourcePos-arrayPos);
-sceneInfo.numOfReflections = nnz(reflectionsInfo.delay < opts.taumax )-1;
-
 fprintf("Distance: %.2f meters\n", sceneInfo.dist);
-fprintf("Num of early reflections: %d\n", sceneInfo.numOfReflections);
 
 %% convolve with responce
 if size(h,1)==1

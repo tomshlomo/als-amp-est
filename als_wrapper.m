@@ -29,7 +29,7 @@ J = size(f, 1);
 P = P(:,I);
 
 S_exp = S_exp(I);
-H = doa_delay_to_H(doa, delay, f, opts.array_type, sqrt(size(P,1))-1);
+H = doa_delay_to_A(doa, delay, f, opts.array_type, sqrt(size(P,1))-1);
 x = als(H, P, "plot_flag", opts.plot_flag,...
     "real_flag", opts.real_flag, "s_exp", S_exp, "x_exp", opts.x_exp, "verbose", opts.verbose);
 if ~opts.output_all_iterations

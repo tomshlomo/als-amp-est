@@ -46,7 +46,7 @@ for i=2:opts.max_iters+1
     [s, s_error(i)] = raking(A, P, x(:,i-1), "s_exp", s_exp, "verbose", verbose || (opts.verbose && i==2));
     
     %% Estimate x
-    [x(:,i), residual_norm(i), x_error(i)] = x_from_H_P_s(A, P, s, "real_flag", opts.real_flag, "verbose", verbose, "x_exp", x_exp);
+    [x(:,i), residual_norm(i), x_error(i)] = x_from_A_P_s(A, P, s, "real_flag", opts.real_flag, "verbose", verbose, "x_exp", x_exp);
 end
 
 if opts.plot_flag

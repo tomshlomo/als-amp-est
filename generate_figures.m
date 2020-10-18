@@ -3,16 +3,17 @@ function generate_figures()
 setup();
 
 %% parameters
+rng("default"); % for reproducibility
 M = 1; % Monte Carlo Repetitions
 T = 1; % sample length
 dnr = 30; % direct to noise ratio (dB)
 array_type = "em32"; % eigenmike with 32 microphones
 bw = 1000; % bandwidth (Hz)
-f_c = 1e3:100:10e3;
+f_c = 1e3:2000:10e3;
 
 %% create clean microphone signals
 [p_clean, fs, reflectionsInfo, s, sceneInfo] = ...
-    simulator("seed", "default", "roomIndex", 2, "T", T,...
+    simulator("seed", "default", "T", T,...
     "arrayType", array_type, "maxWaves", inf, "source_type", "speech");
 x = reflectionsInfo.amp;
 doa = reflectionsInfo.omega;
@@ -29,7 +30,7 @@ fig1 = new_figure("iterations");
 h = plot(0:10, x_hat.');
 scaling = x(1:K+1)\x_hat(:,end);
 for k=1:K+1
-    yline(scaling*x(k), "Color", h(k).Color, "LineStyle", "--", "LineWidth", 1.5, "HandleVisibility", "off");
+    yline(scaling*x(k), "Color", h(k).Color, "LineStyle", "--", "LineWidth", 1, "HandleVisibility", "off");
     h(k).DisplayName = "$k="+(k-1)+"$";
 end
 legend("Location", "southoutside", "NumColumns", 3);
@@ -108,7 +109,7 @@ fig2file(fig3, "fig_3");
     function fig = new_figure(name)
         fig = figure("Units", "centimeters", "WindowStyle", "normal", "Name", name);
         fig.Position(3) = 8.5;
-        fig.Position(4) = 8;
+        fig.Position(4) = 6;
         fig.PaperUnits = fig.Units;
         fig.PaperPosition = fig.Position;
     end
@@ -118,9 +119,10 @@ fig2file(fig3, "fig_3");
     function fig2file(fig, filename)
         resolution = '-r1200';
         type = '-depsc';
+        if ~isfolder("figures")
+            mkdir("figures");
+        end
         print(fig, resolution, fullfile("figures", filename), type )
-        mkdir("figures");
-        save(fullfile("figures", filename), "fig");
     end
 end
 
