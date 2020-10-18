@@ -63,7 +63,8 @@ plot(f_c, 10*log10(simse1));
 xlabel("$f_c$ [Hz]")
 ylabel("SIMSE [dB]");
 legend("$\sigma_\Omega=" + round(sigma_doa'*(180/pi)) + "^\circ$");
-
+xlim([f_c(1), f_c(end)]);
+ylim([-25, 0]);
 set_font_sizes(fig2);
 fig2file(fig2, "fig_2");
 
@@ -90,7 +91,8 @@ plot(f_c, 10*log10(simse2));
 xlabel("$f_c$ [Hz]")
 ylabel("SIMSE [dB]");
 legend("$\sigma_\tau=" + round(sigma_delay'*1e6) + "\mu s$");
-
+xlim([f_c(1), f_c(end)]);
+ylim([-25, 0]);
 set_font_sizes(fig3);
 fig2file(fig3, "fig_3");
 
@@ -109,7 +111,7 @@ fig2file(fig3, "fig_3");
     function fig = new_figure(name)
         fig = figure("Units", "centimeters", "WindowStyle", "normal", "Name", name);
         fig.Position(3) = 8.5;
-        fig.Position(4) = 6;
+        fig.Position(4) = 5;
         fig.PaperUnits = fig.Units;
         fig.PaperPosition = fig.Position;
     end
