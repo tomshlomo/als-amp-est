@@ -4,12 +4,12 @@ setup();
 
 %% parameters
 rng("default"); % for reproducibility
-M = 10; % Monte Carlo Repetitions
+M = 50; % Monte Carlo Repetitions
 T = 1; % sample length
 dnr = 30; % direct to noise ratio (dB)
 array_type = "em32"; % eigenmike with 32 microphones
 bw = 1000; % bandwidth (Hz)
-f_c = 1e3:200:10e3;
+f_c = 1e3:100:10e3;
 
 %% create clean microphone signals
 [p_clean, fs, reflectionsInfo, s, sceneInfo] = ...
@@ -64,7 +64,7 @@ if nargin==0
     simse = mean(simse, 3);
 end
 fig2 = new_figure("simse");
-plot(f_c, 10*log10(simse));
+plot(f_c, 10*log10(simse), "LineWidth", 1);
 xlabel("$f_c$ [Hz]")
 ylabel("SIMSE [dB]");
 leg = legend("$\sigma_\Omega=" + round(sigma_doa'*(180/pi)) + "^\circ, \, \sigma_\tau=" + round(sigma_delay'*1e6) + "\mu s$", "Location", "southoutside", "NumColumns", 2);
