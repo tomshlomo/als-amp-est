@@ -69,7 +69,6 @@ xlabel("$f_c$ [Hz]")
 ylabel("SIMSE [dB]");
 leg = legend("$\sigma_\Omega=" + round(sigma_doa'*(180/pi)) + "^\circ, \, \sigma_\tau=" + round(sigma_delay'*1e6) + "\mu s$", "Location", "southoutside", "NumColumns", 2);
 leg.ItemTokenSize(1) = 20;
-% leg = legend("$" + round(sigma_doa'*(180/pi)) + "^\circ, \, " + round(sigma_delay'*1e6) + "\mu s$", "Location", "southoutside", "NumColumns", 3);
 xlim([f_c(1), f_c(end)]);
 ylim([-25, 0]);
 set_font_sizes(fig2);
@@ -90,7 +89,7 @@ fig2file(fig2, "fig_2");
     function fig = new_figure(name)
         fig = figure("Units", "centimeters", "WindowStyle", "normal", "Name", name);
         fig.Position(3) = 8.5;
-        fig.Position(4) = 6;
+        fig.Position(4) = 5;
         fig.PaperUnits = fig.Units;
         fig.PaperPosition = fig.Position;
     end
