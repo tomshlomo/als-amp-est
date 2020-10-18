@@ -1,6 +1,6 @@
-function [s, s_error] = raking(H, P, x, opts)
+function [s, s_error] = raking(A, P, x, opts)
 arguments
-    H (:,:,:) double
+    A (:,:,:) double
     P (:,:) double
     x (:,1) double
     opts.s_exp = [];
@@ -8,15 +8,15 @@ arguments
 end
 %UNTITLED18 Summary of this function goes here
 %   Detailed explanation goes here
-Q = size(H,1);
-K = size(H,2);
-F = size(H,3);
+Q = size(A,1);
+K = size(A,2);
+F = size(A,3);
 assert(isequal(size(P), [Q, F]));
 assert(isequal(size(x), [K, 1]));
 
 s = zeros(F,1);
 for f=1:F
-    s(f) = (H(:,:,f)*x)\P(:,f);
+    s(f) = (A(:,:,f)*x)\P(:,f);
 end
 
 if ~isempty(opts.s_exp)
