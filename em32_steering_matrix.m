@@ -14,11 +14,11 @@ N = ceil(max(kr))+3;
 Yh_doa = conj(shmat(N, doa, true, true));
 Y_mic = shmat(N, omega_mic, true, false);
 V = zeros(Q, K, J);
+b = bn(N, kr, "directionInterpertation", "doa", ...
+                "outputForm", "vecduplicated", ...
+                "sphereType", "rigid").';
 for j=1:J
-    b = bn(N, kr(j), "directionInterpertation", "doa", ...
-        "outputForm", "vecduplicated", ...
-        "sphereType", "rigid").';
-    V(:,:,j) = Y_mic * (b .* Yh_doa);
+    V(:,:,j) = Y_mic * (b(:,j) .* Yh_doa);
 end
 
 end

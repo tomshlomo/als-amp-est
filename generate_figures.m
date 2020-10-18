@@ -1,15 +1,15 @@
-function generate_figures()
+function simse = generate_figures(simse)
 
 setup();
 
 %% parameters
 rng("default"); % for reproducibility
-M = 1; % Monte Carlo Repetitions
+M = 10; % Monte Carlo Repetitions
 T = 1; % sample length
 dnr = 30; % direct to noise ratio (dB)
 array_type = "em32"; % eigenmike with 32 microphones
 bw = 1000; % bandwidth (Hz)
-f_c = 1e3:2000:10e3;
+f_c = 1e3:200:10e3;
 
 %% create clean microphone signals
 [p_clean, fs, reflectionsInfo, s, sceneInfo] = ...
@@ -36,7 +36,8 @@ end
 legend("Location", "southoutside", "NumColumns", 3);
 xlabel("Iteration Num.");
 ylabel("$\hat{x}_k$");
-
+xlim([0, 10]);
+ylim([0, 1.05]);
 set_font_sizes(fig1);
 fig2file(fig1, "fig_1");
 
@@ -46,27 +47,31 @@ rng("default"); % for reproducibility
 K = 20;
 sigma_doa   = [0, 5, 10, 0, 0 ]*pi/180;
 sigma_delay = [0, 0, 0,  5, 10]*1e-6;
-simse = zeros(length(f_c), length(sigma_doa), M);
-
-for i=1:length(f_c)
-    for j=1:length(sigma_doa)
-        for m=1:M
-            p = add_sensor_noise(p_clean);
-            doa_noisy = add_doa_noise(doa(1:K+1,:), sigma_doa(j));
-            delay_noisy = add_delay_noise(delay(1:K+1,:), sigma_delay(j));
-            x_hat = als_wrapper(p, fs, f_c(i) + bw/2*[-1, 1], doa_noisy, delay_noisy, "x_exp", x(1:K+1), "s_exp", s, "verbose", false);
-            simse(i, j, m) = scale_invariant_mse(x_hat, x(1:K+1));
-            fprintf("\ti = %3d/%3d, j = %3d/%3d, m = %3d/%3d\n", i, length(f_c), j, length(sigma_doa), m, M);
+if nargin==0
+    simse = zeros(length(f_c), length(sigma_doa), M);
+    for i=1:length(f_c)
+        for j=1:length(sigma_doa)
+            for m=1:M
+                p = add_sensor_noise(p_clean);
+                doa_noisy = add_doa_noise(doa(1:K+1,:), sigma_doa(j));
+                delay_noisy = add_delay_noise(delay(1:K+1,:), sigma_delay(j));
+                x_hat = als_wrapper(p, fs, f_c(i) + bw/2*[-1, 1], doa_noisy, delay_noisy, "x_exp", x(1:K+1), "s_exp", s, "verbose", false);
+                simse(i, j, m) = scale_invariant_mse(x_hat, x(1:K+1));
+                fprintf("\ti = %3d/%3d, j = %3d/%3d, m = %3d/%3d\n", i, length(f_c), j, length(sigma_doa), m, M);
+            end
         end
     end
+    simse = mean(simse, 3);
 end
-simse = mean(simse, 3);
 fig2 = new_figure("simse");
 plot(f_c, 10*log10(simse));
 xlabel("$f_c$ [Hz]")
 ylabel("SIMSE [dB]");
-legend("$\sigma_\Omega=" + round(sigma_doa'*(180/pi)) + "^\circ, \, \sigma_\tau=" + round(sigma_delay*1e6) + "\mu s$", "Location", "southoutside", "NumColumns", 3);
-
+leg = legend("$\sigma_\Omega=" + round(sigma_doa'*(180/pi)) + "^\circ, \, \sigma_\tau=" + round(sigma_delay'*1e6) + "\mu s$", "Location", "southoutside", "NumColumns", 2);
+leg.ItemTokenSize(1) = 20;
+% leg = legend("$" + round(sigma_doa'*(180/pi)) + "^\circ, \, " + round(sigma_delay'*1e6) + "\mu s$", "Location", "southoutside", "NumColumns", 3);
+xlim([f_c(1), f_c(end)]);
+ylim([-25, 0]);
 set_font_sizes(fig2);
 fig2file(fig2, "fig_2");
 
