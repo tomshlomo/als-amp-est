@@ -27,7 +27,7 @@ p = add_sensor_noise(p_clean);
 x_hat = als_wrapper(p, fs, [3500 4500], doa(1:K+1,:), delay(1:K+1), "output_all_iterations", true, "x_exp", x(1:K+1), "s_exp", s);
 
 fig1 = new_figure("iterations");
-h = plot(0:10, x_hat.');
+h = plot(0:10, x_hat.', "LineWidth", 1);
 scaling = x(1:K+1)\x_hat(:,end);
 for k=1:K+1
     yline(scaling*x(k), "Color", h(k).Color, "LineStyle", "--", "LineWidth", 1, "HandleVisibility", "off");
@@ -40,59 +40,35 @@ ylabel("$\hat{x}_k$");
 set_font_sizes(fig1);
 fig2file(fig1, "fig_1");
 
-%% Figure 2: SIMSE vs. frequency, with noisy DOA
+%% Figure 2: SIMSE vs. frequency, with noisy DOA and delays
 fprintf("Generating figure 2\n");
 rng("default"); % for reproducibility
 K = 20;
-sigma_doa = [0, 5, 10]*pi/180;
-simse1 = zeros(length(f_c), length(sigma_doa), M);
+sigma_doa   = [0, 5, 10, 0, 0 ]*pi/180;
+sigma_delay = [0, 0, 0,  5, 10]*1e-6;
+simse = zeros(length(f_c), length(sigma_doa), M);
+
 for i=1:length(f_c)
     for j=1:length(sigma_doa)
         for m=1:M
             p = add_sensor_noise(p_clean);
             doa_noisy = add_doa_noise(doa(1:K+1,:), sigma_doa(j));
-            x_hat = als_wrapper(p, fs, f_c(i) + bw/2*[-1, 1], doa_noisy, delay(1:K+1), "x_exp", x(1:K+1), "s_exp", s, "verbose", false);
-            simse1(i, j, m) = scale_invariant_mse(x_hat, x(1:K+1));
+            delay_noisy = add_delay_noise(delay(1:K+1,:), sigma_delay(j));
+            x_hat = als_wrapper(p, fs, f_c(i) + bw/2*[-1, 1], doa_noisy, delay_noisy, "x_exp", x(1:K+1), "s_exp", s, "verbose", false);
+            simse(i, j, m) = scale_invariant_mse(x_hat, x(1:K+1));
             fprintf("\ti = %3d/%3d, j = %3d/%3d, m = %3d/%3d\n", i, length(f_c), j, length(sigma_doa), m, M);
         end
     end
 end
-simse1 = mean(simse1, 3);
-fig2 = new_figure("doa noise");
-plot(f_c, 10*log10(simse1));
+simse = mean(simse, 3);
+fig2 = new_figure("simse");
+plot(f_c, 10*log10(simse));
 xlabel("$f_c$ [Hz]")
 ylabel("SIMSE [dB]");
-legend("$\sigma_\Omega=" + round(sigma_doa'*(180/pi)) + "^\circ$");
+legend("$\sigma_\Omega=" + round(sigma_doa'*(180/pi)) + "^\circ, \, \sigma_\tau=" + round(sigma_delay*1e6) + "\mu s$", "Location", "southoutside", "NumColumns", 3);
 
 set_font_sizes(fig2);
 fig2file(fig2, "fig_2");
-
-%% Figure 3: SIMSE vs. frequency, with noisy delay
-fprintf("Generating figure 3\n");
-rng("default"); % for reproducibility
-K = 20;
-sigma_delay = [0, 5, 10]*1e-6;
-simse2 = zeros(length(f_c), length(sigma_delay), M);
-for i=1:length(f_c)
-    for j=1:length(sigma_delay)
-        for m=1:M
-            p = add_sensor_noise(p_clean);
-            delay_noisy = add_delay_noise(delay(1:K+1,:), sigma_delay(j));
-            x_hat = als_wrapper(p, fs, f_c(i) + bw/2*[-1, 1], doa(1:K+1,:), delay_noisy, "x_exp", x(1:K+1), "s_exp", s, "verbose", false);
-            simse2(i, j, m) = scale_invariant_mse(x_hat, x(1:K+1));
-            fprintf("\ti = %3d/%3d, j = %3d/%3d, m = %3d/%3d\n", i, length(f_c), j, length(sigma_delay), m, M);
-        end
-    end
-end
-simse2 = mean(simse2, 3);
-fig3 = new_figure("delay noise");
-plot(f_c, 10*log10(simse2));
-xlabel("$f_c$ [Hz]")
-ylabel("SIMSE [dB]");
-legend("$\sigma_\tau=" + round(sigma_delay'*1e6) + "\mu s$");
-
-set_font_sizes(fig3);
-fig2file(fig3, "fig_3");
 
 %% nested
     function p = add_sensor_noise(p)
