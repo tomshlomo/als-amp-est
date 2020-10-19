@@ -1,4 +1,4 @@
-function [p, fs, reflectionsInfo, s, sceneInfo] = simulator(opts)
+function [p, fs, reflectionsInfo, s, sceneInfo, h] = simulator(opts)
 arguments
     opts.seed = "default"
     opts.maxWaves = inf;
@@ -16,6 +16,7 @@ if ~isempty(cache)
     reflectionsInfo = cache.reflectionsInfo;
     s = cache.s;
     sceneInfo = cache.sceneInfo;
+    h = cache.h;
     return 
 end
 rng(opts.seed);
@@ -41,7 +42,7 @@ arrayPos =  [roomDim(1)*1/4 roomDim(2)/2 1.5]+rand_between([-0.5, 0.5], [1, 3]);
 
 %% get responce
 [h, reflectionsInfo, roomParams] = image_method.calc_rir(fs, roomDim, sourcePos, arrayPos, R, ...
-    {"maxwaves", opts.maxWaves, "zerofirstdelay", true, "angledependence", opts.angle_dependence}, ...
+    {"maxwaves", opts.maxWaves, "zerofirstdelay", false, "angledependence", opts.angle_dependence}, ...
     {"array_type", opts.arrayType, "N", 4});% N is not really used here.
 sceneInfo.T60 = roomParams.T60;
 sceneInfo.DRR = roomParams.DRR;
@@ -74,5 +75,6 @@ cache.fs = fs;
 cache.reflectionsInfo = reflectionsInfo;
 cache.s = s;
 cache.sceneInfo = sceneInfo;
+cache.h = h;
 
 end
