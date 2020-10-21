@@ -10,7 +10,7 @@ Run `generate_figures()` (with no inputs) to see an example of usage, and to reg
 It takes a while due to the many Monte Carlo repetitions.
 You can reduce the number of repetitions by lowering the value of `M`.
 
-`setup()` (already called at the beginning of `generate_figures`), configures MATLAB's path.
+`setup()` (already called to at the beginning of `generate_figures`) configures MATLAB's path.
 
 The code was written in MATLAB 2020a.
 
