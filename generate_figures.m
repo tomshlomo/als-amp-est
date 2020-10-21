@@ -50,7 +50,6 @@ fig1a = new_figure("rir", 2.5);
 yl = [-0.8, 1];
 lw = 0.5;
 plot(tvec, h_exp_f(:, q), "LineWidth", lw);
-% xlabel("Time [sec]");
 xlim([0, 0.4]);
 ylim(yl);
 set_font_sizes(fig1a);
