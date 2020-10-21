@@ -26,7 +26,7 @@ rng("default"); % for reproducibility
 K = 20;
 p = add_sensor_noise(p_clean);
 doa_noisy = add_doa_noise(doa(1:K+1,:), 10*pi/180);
-delay_noisy = add_delay_noise(delay(1:K+1,:), 30e-6);
+delay_noisy = add_delay_noise(delay(1:K+1,:), 10e-6);
 if nargin==0 || isempty(h)
     h = 0;
     for i = 1:length(f_c)
@@ -56,7 +56,7 @@ ylim(yl);
 set_font_sizes(fig1a);
 fig2file(fig1a, "fig_1a");
 
-fig1b = new_figure("rir_zoom", 3.5);
+fig1b = new_figure("rir_zoom", 3);
 plot(tvec, h_exp_f(:, q), "LineWidth", lw);
 hold on
 plot(tvec(1:size(h_f, 1)), h_f(:, q) * scale, '-', "LineWidth", lw);
