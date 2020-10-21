@@ -12,7 +12,7 @@ You can reduce the number of repetitions by lowering the value of `M`.
 
 The code was written in MATLAB 2020a.
 
-The speech signal in the file `female_speech.wav` was taken from the [TSP speech data set](http://www-mmsp.ece.mcgill.ca/Documents/Data/).
+The speech signal in the file `female_speech.wav` was taken from the [TSP speech dataset](http://www-mmsp.ece.mcgill.ca/Documents/Data/).
 
 [Tom Shlomo](https://www.linkedin.com/in/tom-shlomo-060679182/),
 [Acoustics Lab](https://sites.google.com/view/acousticslab), Ben Gurion University.
