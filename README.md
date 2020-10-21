@@ -1,6 +1,8 @@
 # als-amp-est
 MATLAB Code for the paper "Blind Amplitude Estimation of Early Room Reflections Using Alternating Least Squares", submitted to ICASSP 2021.
 
+`ALS_ICASSP2021_preprint.pdf` contains a preprint of the paper.
+
 The algorithm itself is implemented in `als.m`.
 For spherical microphone arrays, `als_wrapper.m` provides a more convenient interface.
 
