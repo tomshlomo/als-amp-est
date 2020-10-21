@@ -1,4 +1,4 @@
-function simse = generate_figures(simse)
+function simse = generate_figures(h, simse)
 
 setup();
 
@@ -12,34 +12,58 @@ bw = 1000; % bandwidth (Hz)
 f_c = 1e3:100:10e3;
 
 %% create clean microphone signals
-[p_clean, fs, reflectionsInfo, s, sceneInfo] = ...
+[p_clean, fs, reflectionsInfo, s, sceneInfo, h_exp] = ...
     simulator("seed", "default", "T", T,...
     "arrayType", array_type, "maxWaves", inf, "source_type", "speech");
 x = reflectionsInfo.amp;
 doa = reflectionsInfo.omega;
-delay = reflectionsInfo.delay;
+tau0 = reflectionsInfo.delay(1);
+delay = reflectionsInfo.delay - tau0;
 
 %% Figure 1: estimates vs. iteration
 fprintf("Generating figure 1\n");
 rng("default"); % for reproducibility
-K = 5;
+K = 20;
 p = add_sensor_noise(p_clean);
-x_hat = als_wrapper(p, fs, [3500 4500], doa(1:K+1,:), delay(1:K+1), "output_all_iterations", true, "x_exp", x(1:K+1), "s_exp", s);
-
-fig1 = new_figure("iterations");
-h = plot(0:10, x_hat.', "LineWidth", 1);
-scaling = x(1:K+1)\x_hat(:,end);
-for k=1:K+1
-    yline(scaling*x(k), "Color", h(k).Color, "LineStyle", "--", "LineWidth", 1, "HandleVisibility", "off");
-    h(k).DisplayName = "$k="+(k-1)+"$";
+doa_noisy = add_doa_noise(doa(1:K+1,:), 10*pi/180);
+delay_noisy = add_delay_noise(delay(1:K+1,:), 10e-6);
+if nargin==0 || isempty(h)
+    h = 0;
+    for i = 1:length(f_c)
+        passband = f_c(i) + bw * [-0.5, 0.5];
+        x_est = als_wrapper(p, fs, passband, doa_noisy, delay_noisy, "x_exp", x(1:K + 1), "s_exp", s);
+        x_est = x_est / x_est(1);
+        h_f = image_method.rir_from_parametric(fs, delay_noisy + tau0, x_est, doa_noisy, "array_type", array_type, "bpfFlag", false);
+        h = h + bandpass(h_f, passband, fs);
+    end
 end
-legend("Location", "southoutside", "NumColumns", 3);
-xlabel("Iteration Num.");
-ylabel("$\hat{x}_k$");
-xlim([0, 10]);
-ylim([0, 1.05]);
-set_font_sizes(fig1);
-fig2file(fig1, "fig_1");
+passband = [1000, 5000];
+q = 1;
+h_exp_f = bandpass(h_exp, passband, fs);
+h_exp_f = h_exp_f/max(h_exp_f(:,q));
+h_exp_f_early = h_exp_f(1:size(h, 1), :);
+h_f = bandpass(h, passband, fs);
+scale = h_f(:, q) \ h_exp_f_early(:, q);
+tvec = (0:size(h_exp_f) - 1)' / fs - tau0 + 200e-6;
+
+fig1a = new_figure("rir", 2.5);
+yl = [-0.8, 1];
+lw = 0.5;
+plot(tvec, h_exp_f(:, q), "LineWidth", lw);
+xlim([0, 0.4]);
+ylim(yl);
+set_font_sizes(fig1a);
+fig2file(fig1a, "fig_1a");
+
+fig1b = new_figure("rir_zoom", 3);
+plot(tvec, h_exp_f(:, q), "LineWidth", lw);
+hold on
+plot(tvec(1:size(h_f, 1)), h_f(:, q) * scale, '-', "LineWidth", lw);
+xlabel("Time [sec]");
+xlim([0, 0.02]);
+ylim(yl);
+set_font_sizes(fig1b);
+fig2file(fig1b, "fig_1b");
 
 %% Figure 2: SIMSE vs. frequency, with noisy DOA and delays
 fprintf("Generating figure 2\n");
@@ -63,7 +87,7 @@ if nargin==0
     end
     simse = mean(simse, 3);
 end
-fig2 = new_figure("simse");
+fig2 = new_figure("simse", 5);
 plot(f_c, 10*log10(simse), "LineWidth", 1);
 xlabel("$f_c$ [Hz]")
 ylabel("SIMSE [dB]");
@@ -86,10 +110,10 @@ fig2file(fig2, "fig_2");
     function delay = add_delay_noise(delay, sigma_delay)
         delay = delay + [0; randn(size(delay,1)-1,1)*sigma_delay];
     end
-    function fig = new_figure(name)
+    function fig = new_figure(name, height)
         fig = figure("Units", "centimeters", "WindowStyle", "normal", "Name", name);
         fig.Position(3) = 8.5;
-        fig.Position(4) = 5;
+        fig.Position(4) = height;
         fig.PaperUnits = fig.Units;
         fig.PaperPosition = fig.Position;
     end
