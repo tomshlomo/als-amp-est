@@ -1,4 +1,4 @@
-function simse = generate_figures(h, simse)
+function simse = generate_figures(h, simse, is_slides)
 
 setup();
 
@@ -112,21 +112,36 @@ fig2file(fig2, "fig_2");
     end
     function fig = new_figure(name, height)
         fig = figure("Units", "centimeters", "WindowStyle", "normal", "Name", name);
-        fig.Position(3) = 8.5;
-        fig.Position(4) = height;
+        if is_slides
+            fig.Position(3) = 30;
+            fig.Position(4) = 17;
+        else
+            fig.Position(3) = 8.5;
+            fig.Position(4) = height;
+        end
         fig.PaperUnits = fig.Units;
         fig.PaperPosition = fig.Position;
     end
     function fig = set_font_sizes(fig)
-        set(findall(fig,'-property','FontSize'),'FontSize', 8)
+        if is_slides
+            font_size = 20;
+        else
+            font_size = 8;
+        end
+        set(findall(fig,'-property','FontSize'),'FontSize', font_size)
     end
     function fig2file(fig, filename)
         resolution = '-r1200';
         type = '-depsc';
-        if ~isfolder("figures")
-            mkdir("figures");
+        if is_slides
+            folder = "slides";
+        else
+            folder = "figures";
         end
-        print(fig, resolution, fullfile("figures", filename), type )
+        if ~isfolder(folder)
+            mkdir(folder);
+        end
+        print(fig, resolution, fullfile(folder, filename), type)
     end
 end
 
