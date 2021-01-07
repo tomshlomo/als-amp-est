@@ -56,7 +56,7 @@ if opts.plot_flag
     plot(x.', '.-');
     nexttile();
     plot(10*log10([s_error, x_error, residual_norm.^2]));
-    mylegend("s", "x", "residual");
+    legend("s", "x", "residual");
 end
 end
 

@@ -20,6 +20,11 @@ doa = reflectionsInfo.omega;
 tau0 = reflectionsInfo.delay(1);
 delay = reflectionsInfo.delay - tau0;
 
+%%
+p = add_sensor_noise(p_clean);
+K = 6;
+als_wrapper(p, fs, [1000, 2000], doa(1:K+1,:), delay(1:K+1,:), "x_exp", x(1:K + 1), "s_exp", s, "plot_flag", 1);
+
 %% Figure 1: estimates vs. iteration
 fprintf("Generating figure 1\n");
 rng("default"); % for reproducibility
