@@ -1,4 +1,4 @@
-function simse = generate_figures(h, simse)
+function [h, simse] = generate_figures(h, simse)
 
 setup();
 
@@ -20,7 +20,7 @@ doa = reflectionsInfo.omega;
 tau0 = reflectionsInfo.delay(1);
 delay = reflectionsInfo.delay - tau0;
 
-%% Figure 1: estimates vs. iteration
+%% Figure 1: RIR recostruction
 fprintf("Generating figure 1\n");
 rng("default"); % for reproducibility
 K = 20;
@@ -70,7 +70,7 @@ fprintf("Generating figure 2\n");
 rng("default"); % for reproducibility
 K = 20;
 sigma_doa   = [0, 5, 10, 0, 0 ]*pi/180;
-sigma_delay = [0, 0, 0,  5, 10]*1e-6;
+sigma_delay = [0, 0, 0,  10, 20]*1e-6;
 if nargin==0
     simse = zeros(length(f_c), length(sigma_doa), M);
     for i=1:length(f_c)
