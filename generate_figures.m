@@ -46,7 +46,7 @@ h_f = bandpass(h, passband, fs);
 scale = h_f(:, q) \ h_exp_f_early(:, q);
 tvec = (0:size(h_exp_f) - 1)' / fs - tau0 + 200e-6;
 
-fig1a = new_figure("rir", 2.5);
+fig1a = new_figure("rir", 1.75);
 yl = [-0.8, 1];
 lw = 0.5;
 plot(tvec, h_exp_f(:, q), "LineWidth", lw);
@@ -55,7 +55,7 @@ ylim(yl);
 set_font_sizes(fig1a);
 fig2file(fig1a, "fig_1a");
 
-fig1b = new_figure("rir_zoom", 3);
+fig1b = new_figure("rir_zoom", 2.3);
 plot(tvec, h_exp_f(:, q), "LineWidth", lw);
 hold on
 plot(tvec(1:size(h_f, 1)), h_f(:, q) * scale, '-', "LineWidth", lw);
